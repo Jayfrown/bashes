@@ -41,12 +41,23 @@ err() {
 
 # run with sudo
 run_sudo() {
-	/usr/bin/sudo "${@}"    || err "sudo returned non-zero exit code: $?";
+	/usr/bin/sudo "${@}" || err "sudo returned non-zero exit code: $?";
 	return ${?}
 }
 
 # spawn a root shell
 root_shell() {
-	/usr/bin/sudo "-i"      || err "sudo returned non-zero exit code: $?";
+	/usr/bin/sudo "-i" || err "sudo returned non-zero exit code: $?";
 	return ${?}
+}
+
+# append to file
+append_file() {
+	echo "${Cred}${basename}:${Cdflt} appending to ${Cblue}${1}${Cdflt}:"
+	/usr/bin/sudo "/usr/bin/tee -a ${1}"
+}
+
+write_file() {
+	echo  "${Cred}${basename}:${Cdflt} writing to ${Cblue}${1}${Cdflt}:"
+	/usr/bin/sudo "/usr/bin/tee ${1}"
 }

@@ -19,14 +19,15 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+
 # include function
 . _func
 
-# main() in full
-if [ -t ]; then
+# main()
+if [ -t ]; then # FIXME
 
 	# stdin/stdout -> interactive terminal
-	# check arguments passed
+	# check arg(s) passed
 	if [[ ${#} -gt "0" ]]; then
 
 		# arg(s) passed, assume sudo behavior
@@ -38,6 +39,31 @@ if [ -t ]; then
 	fi
 else
 
-	# no interactive terminal, no behavior (yet?)
+	# FIXME: -t is true even when piped !!
+	
+	# no interactive terminal, assume piped
+	# wrap around sudo tee.
+	
+	# [[ $1 = -a ]] && append to file(s)
+	if [[ ${1} -eq "-a" ]]; then
+		for appendFile in ${@}; do
+			
+			# file must exist to append
+			if [[ -f ${appendFile} ]]; then
+				append_file ${appendFile}
+			else
+				echo "${Cred}${basename}:${Cdflt} file must exist to append: ${Cblue}${1}${Cdflt}"
+			fi
+		done
+		
+	else
+	
+	# [[ $1 != -a ]] && write to file(s) 
+		for writeFile in ${@}; do
+			write_file ${writeFile}
+		done
+	fi
+
+	
 	exit 0;
 fi
