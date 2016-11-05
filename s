@@ -19,27 +19,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-
-# main() in full
-#if [ -t ]; then
-
-	# stdin/stdout -> interactive terminal
-	# check arguments passed
-#	if [[ ${#} -gt "0" ]]; then
-
-		# arg(s) passed, assume sudo behavior
-#		run_sudo "${@}"
-#	else
-
-		# no args, assume su behavior
-#		root_shell
-#	fi
-#else
-
-	# no interactive terminal, no behavior (yet?)
-#	exit 0;
-#fi
-
 # include function
 . _func
 
