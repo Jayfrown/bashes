@@ -20,39 +20,8 @@
 #  MA 02110-1301, USA.
 
 
-# easy colors
-Cdflt="\e[39m"
-Cblue="\e[34m"
-Cred="\e[91m"
-Cmagenta="\e[35m"
-
-# basename
-basename="${0##*/}"
-
-# pretty error messages
-err() {
-	oldExit="${?}"
-	errDesc="function ${Cred}${FUNCNAME[$i+1]}${Cdflt} at line ${Cred}${BASH_LINENO[$i]}${Cdflt}"
-	echo -e "${Cred}${basename}:${Cdflt} ${errDesc}: ${Cmagenta}${*}${Cdflt}"
-	logger -p user.error -t "${basename}" "${errDesc} ${*}"
-	
-	return ${oldExit}
-}
-
-# run with sudo
-run_sudo() {
-	/usr/bin/sudo "${@}"    || err "sudo returned non-zero exit code: $?";
-	return ${?}
-}
-
-# spawn a root shell
-root_shell() {
-	/usr/bin/sudo "-i"      || err "sudo returned non-zero exit code: $?";
-	return ${?}
-}
-
-
-
+# include function
+. _func
 
 # main()
 if [ -t ]; then
