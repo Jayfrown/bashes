@@ -20,25 +20,28 @@
 #  MA 02110-1301, USA.
 
 
-# include function
-. _func
-
-# main()
-if [ -t ]; then
+# main() in full
+#if [ -t ]; then
 
 	# stdin/stdout -> interactive terminal
 	# check arguments passed
-	if [[ ${#} -gt "0" ]]; then
+#	if [[ ${#} -gt "0" ]]; then
 
 		# arg(s) passed, assume sudo behavior
-		run_sudo "${@}"
-	else
+#		run_sudo "${@}"
+#	else
 
 		# no args, assume su behavior
-		root_shell
-	fi
-else
+#		root_shell
+#	fi
+#else
 
 	# no interactive terminal, no behavior (yet?)
-	exit 0;
-fi
+#	exit 0;
+#fi
+
+# include function
+. _func
+
+# main() in a one-liner
+[ -t ] && ( [[ ${#} -gt "0" ]] && ( run_sudo "$(@)" ) || ( root_shell ) ) || exit 0;
