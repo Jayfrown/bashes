@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ##
 #  s
 #  sudo wrapper to speed things up
@@ -20,11 +22,12 @@
 #  MA 02110-1301, USA.
 
 
-# include function
+# include functions
 . _func
 
+
 # main()
-if [ -t ]; then # FIXME
+#if [ -t ]; then # FIXME
 
 	# stdin/stdout -> interactive terminal
 	# check arg(s) passed
@@ -37,7 +40,7 @@ if [ -t ]; then # FIXME
 		# no args, assume su behavior
 		root_shell
 	fi
-else
+#else
 
 	# FIXME: -t is true even when piped !!
 	
@@ -45,25 +48,25 @@ else
 	# wrap around sudo tee.
 	
 	# [[ $1 = -a ]] && append to file(s)
-	if [[ ${1} -eq "-a" ]]; then
-		for appendFile in ${@}; do
+#	if [[ ${1} -eq "-a" ]]; then
+#		for appendFile in ${@}; do
 			
 			# file must exist to append
-			if [[ -f ${appendFile} ]]; then
-				append_file ${appendFile}
-			else
-				echo "${Cred}${basename}:${Cdflt} file must exist to append: ${Cblue}${1}${Cdflt}"
-			fi
-		done
+#			if [[ -f ${appendFile} ]]; then
+#				append_file ${appendFile}
+#			else
+#				echo "$(red ${prog}): file must exist to append: $(magenta ${1})"
+#			fi
+#		done
 		
-	else
+#	else
 	
 	# [[ $1 != -a ]] && write to file(s) 
-		for writeFile in ${@}; do
-			write_file ${writeFile}
-		done
-	fi
+#		for writeFile in ${@}; do
+#			write_file ${writeFile}
+#		done
+#	fi
 
 	
-	exit 0;
-fi
+#	exit 0;
+#fi

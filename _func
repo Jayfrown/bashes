@@ -20,8 +20,8 @@
 #  MA 02110-1301, USA.
 
 
-# basename
-basename="${0##*/}"
+# provide a flat basename
+prog="${0##*/}"
 
 # easy colors
 Cdflt="\e[39m"
@@ -29,35 +29,68 @@ Cblue="\e[34m"
 Cred="\e[91m"
 Cmagenta="\e[35m"
 
+blue() {
+	echo -ne "${Cblue}"
+	echo -n "${*}"
+	echo -ne "${Cdflt}" 
+}
+
+red() {
+	echo -ne "${Cred}"
+	echo -n "${*}"
+	echo -ne "${Cdflt}"
+}
+
+magenta() {
+	echo -ne "${Cmagenta}"
+	echo -n "${*}"
+	echo -ne "${Cdflt}"
+}
+
 # pretty error messages
 err() {
 	oldExit="${?}"
-	errDesc="function ${Cred}${FUNCNAME[$i+1]}${Cdflt} at line ${Cred}${BASH_LINENO[$i]}${Cdflt}"
-	echo -e "${Cred}${basename}:${Cdflt} ${errDesc}: ${Cmagenta}${*}${Cdflt}"
-	logger -p user.error -t "${basename}" "${errDesc} ${*}"
+	logDesc="function ${FUNCNAME[$i+1]} at line ${BASH_LINENO[$i]}"
+	errDesc="function $(red ${FUNCNAME[$i+1]}) at line $(red ${BASH_LINENO[$i]})"
+
+	bMsg "${prog}: ${errDesc}: \"$(magenta ${*})\""
+	logger -p user.error -t "${prog}" "${logDesc}: \"${*}\""
 	
 	return ${oldExit}
 }
 
-# run with sudo
+gMsg() {
+	echo -e "$(blue ${prog}): $*"
+}
+
+bMsg() {
+	echo -e "$(red ${prog}): $*"
+}
+
+
+# run command through sudo
 run_sudo() {
-	/usr/bin/sudo "${@}" || err "sudo returned non-zero exit code: $?";
+	/usr/bin/sudo "${@}"
 	return ${?}
 }
 
 # spawn a root shell
 root_shell() {
-	/usr/bin/sudo "-i" || err "sudo returned non-zero exit code: $?";
+	gMsg "dropping to root shell"
+	/usr/bin/sudo "-i"
 	return ${?}
 }
 
 # append to file
 append_file() {
-	echo "${Cred}${basename}:${Cdflt} appending to ${Cblue}${1}${Cdflt}:"
+	gMsg "appending to $(magenta ${1}):"
 	/usr/bin/sudo "/usr/bin/tee -a ${1}"
+	return ${?}
 }
 
+# write to file
 write_file() {
-	echo  "${Cred}${basename}:${Cdflt} writing to ${Cblue}${1}${Cdflt}:"
+	gMsg "writing to $(magenta ${1}):"
 	/usr/bin/sudo "/usr/bin/tee ${1}"
+	return ${?}
 }

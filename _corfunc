@@ -1,0 +1,102 @@
+##
+#  _corfunc
+#  functions for cor (container over ramdisk)
+  
+#  Copyright 2016 Jeroen <Jayfrown @ github.com>
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+
+# rebuild gentoo rootfs on ramdisk
+# assumes ${lower_rootfs} is already on tmpfs
+# make sure it's in fstab or something
+rebuild-rootfs() {
+	fingerPrint=$(/usr/bin/lxc image info gentoo|grep -i "finger"|awk '{print $2}')
+
+	gMsg "rebuilding base-system"
+	gMsg "using source image $(magenta ${fingerPrint})"
+	gMsg "using target directory $(magenta ${lower_rootfs})"
+
+	if [[ ${fingerPrint} && ${lower_rootfs} ]]; then
+		gMsg "extracting rootfs .."
+		run_sudo "cd ${lower_rootfs} && /bin/tar xpf ${lxdBase}/images/${fingerPrint}.rootfs"
+
+		gMsg "setting permissions"
+		run_sudo "chown -R 1000000:1000000 ${lower_rootfs}/"
+		
+		gMsg "rebuild successful"
+	fi
+}
+
+
+# copy an empty container
+new-container() {
+	containerName=$(/usr/bin/lxc copy local:empty local:${containerName} |grep 'Creating '|awk '{print $2}')
+	gMsg "created container $(magenta ${containerName})"
+
+}
+
+
+prep-container() {
+	gMsg "ensuring clean rootfs for $(magenta ${containerName})"
+	sudo umount /var/lib/lxd/container/${containerName}/rootfs 2>&1 >/dev/null
+	sudo rm -rf /var/lib/lxd/containers/${containerName}/rootfs/* 2>&1 >/dev/null
+
+	gMsg "ensuring overlay structure for $(magenta ${containerName})"
+	sudo mkdir -p /var/lib/lxd/containers/${containerName}/{work,persistent_storage} 2>&1 >/dev/null
+}
+
+
+overlay() {
+	gMsg "mounting overlays for $(magenta ${containerName})"
+	gMsg "base-system: $(magenta ${lower_rootfs})"
+	gMsg "persistent_storage: $(magenta ${containerBase}/${containerName}/persistent_storage)"
+	gMsg "merged at $(magenta ${containerBase}/${containerName}/rootfs)"
+	sudo mount -t overlay overlay -o lowerdir=${lower_rootfs},upperdir=${containerBase}/${containerName}/persistent_storage,workdir=${containerBase}/${containerName}/work ${containerBase}/${containerName}/rootfs
+}
+
+
+show-helpmsg() {
+		if [[ ! ${1} ]]; then
+			gMsg "usage: cor help $(magenta [action])"
+			echo
+			gMsg "$(red help) | $(red create) | $(red remount) | $(red rebuild)"
+		else
+
+			case $1 in
+				help)
+					gMsg "help help heLP HELP HELP!"
+					;;
+				create)
+					gMsg "create $(magenta [containerName])"
+					echo
+					gMsg "spawns a new container using a generated or supplied name"
+					gMsg "all containers share the same physical rootfs, leveraging overlayfs"
+					gMsg "to write their respective changes to an 'upper' directory"
+					;;
+				remount)
+					gMsg "remount $(magenta [containerName])"
+					echo
+					gMsg "ensures a container has all needed overlay mounts"
+					;;
+				rebuild)
+					gMsg "rebuild"
+					echo
+					gMsg "ensures the base rootfs is non-empty"
+					;;
+			esac
+
+		fi
+}
