@@ -28,8 +28,9 @@
 #  You're welcome to tinker with it, of course
 
 # include functions
-. _func
-. _corfunc
+include_dir="${BASH_SOURCE%/*}/func"
+. "${include_dir}/_main"
+. "${include_dir}/_cor"
 
 
 
@@ -59,53 +60,66 @@ lxdBase="/var/lib/lxd"
 containerBase="${lxdBase}/containers"
 lower_rootfs="${containerBase}/gentoo/rootfs"
 
-generatedName="$(curl -L "http://frightanic.com/goodies_content/docker-names.php" 2>/dev/null)"
+generatedName="$(curl -L "http://frightanic.com/goodies_content/docker-names.php" 2>/dev/null |tr "_" "-")"
 
+# check for empty base-system
 if [[ -d ${lower_rootfs}/usr ]]; then
-	empty_rootfs="false";
+	empty_rootfs="false"
 else
-	empty_rootfs="true";
+	empty_rootfs="true"
 fi
 
+# action
 case $1 in
+
+	# show a help message
 	help)
 		show-helpmsg ${2}
 		;;
 
+	# rebuild the base-system rootfs (lower)
 	rebuild)
 		if [[ ${empty_rootfs} = "true" ]]; then
-			rebuild-rootfs
+
+			confirm "rebuild base-system" && rebuild-rootfs
 		else
+
 			bMsg "non-empty rootfs, not rebuilding"
 			exit 1
 		fi
 		;;
 
+	# remount overlayfs for container
 	remount)
 		containerName="containerName"
 		[[ $2 ]] && containerName="${2}"
 
 		if [[ "${containerName}" != "gentoo" && "${containerName}" != "empty" ]]; then
-
 			if [[ ${empty_rootfs} = "false" ]]; then
-				echo $containerName #prep-container && overlay
+
+				confirm "remount overlay" && echo "would remount $containerName" #prep-container && overlay
 			else
+
 				bMsg "empty base-system, please rebuild"
 				exit 1
 			fi
 		else
-			bMsg "operation is invalid for container ${containerName}"
+
+			bMsg "container is part of overlay structure: ${containerName}"
 			exit
 		fi
 		;;
 
+	# new container over base-system
 	create)
 		containerName="${generatedName}"
 		[[ $2 ]] && containerName="${2}"
 
 		if [[ ${empty_rootfs} = "false" ]]; then
-			new-container && prep-container && overlay
+
+			confirm "new container ${containerName}" && empty-container && prep-container && overlay
 		else
+
 			bMsg "empty base-system, please rebuild"
 			exit 1
 		fi

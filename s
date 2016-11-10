@@ -23,23 +23,26 @@
 
 
 # include functions
-. _func
+include_dir="${BASH_SOURCE%/*}/func"
+. "${include_dir}/_main"
 
+[[ ${#} -gt "0" ]] && run_sudo ${@} && exit
+root_shell
 
 # main()
 #if [ -t ]; then # FIXME
 
 	# stdin/stdout -> interactive terminal
 	# check arg(s) passed
-	if [[ ${#} -gt "0" ]]; then
+#	if [[ ${#} -gt "0" ]]; then
 
 		# arg(s) passed, assume sudo behavior
-		run_sudo "${@}"
-	else
+#		run_sudo "${@}"
+#	else
 
 		# no args, assume su behavior
-		root_shell
-	fi
+#		root_shell
+#	fi
 #else
 
 	# FIXME: -t is true even when piped !!

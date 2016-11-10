@@ -47,6 +47,15 @@ magenta() {
 	echo -ne "${Cdflt}"
 }
 
+gMsg() {
+	echo -e "$(blue ${prog}): $*"
+}
+
+bMsg() {
+	echo -e "$(red ${prog}): $*"
+}
+
+
 # pretty error messages
 err() {
 	oldExit="${?}"
@@ -59,18 +68,23 @@ err() {
 	return ${oldExit}
 }
 
-gMsg() {
-	echo -e "$(blue ${prog}): $*"
-}
+# confirm actions
+confirm() {
+	read -r -p "$(blue ${prog}): ${1}: confirm [y/N]" response
 
-bMsg() {
-	echo -e "$(red ${prog}): $*"
-}
+	# ${var,,} == str.toLower($var);
+	if [[ ${response,,} =~ ^(y|yes)$ ]]; then
+		confirm="true"
+	else
+		confirm="false"
+	fi
 
+	return ${confirm}
+}
 
 # run command through sudo
 run_sudo() {
-	/usr/bin/sudo "${@}"
+	/usr/bin/sudo ${@}
 	return ${?}
 }
 
