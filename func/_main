@@ -1,5 +1,5 @@
 ##
-#  _func
+#  _main
 #  Some helpful functions to use in shell scripts.
   
 #  Copyright 2016 Jeroen <Jayfrown @ github.com>
@@ -23,38 +23,49 @@
 # provide a flat basename
 prog="${0##*/}"
 
+# confirm actions
+confirm() {
+	read -r -p "$(blue ${prog}): ${1}: confirm [y/N] " response
+
+	# ${var,,} == str.toLower($var);
+	if [[ ${response,,} =~ ^(y|yes)$ ]]; then
+		true
+	else
+		err "cancelled"
+		false
+	fi
+}
+
 # easy colors
 Cdflt="\e[39m"
 Cblue="\e[34m"
 Cred="\e[91m"
 Cmagenta="\e[35m"
-
 blue() {
 	echo -ne "${Cblue}"
 	echo -n "${*}"
 	echo -ne "${Cdflt}" 
 }
-
 red() {
 	echo -ne "${Cred}"
 	echo -n "${*}"
 	echo -ne "${Cdflt}"
 }
-
 magenta() {
 	echo -ne "${Cmagenta}"
 	echo -n "${*}"
 	echo -ne "${Cdflt}"
 }
 
+# good/neutral message
 gMsg() {
 	echo -e "$(blue ${prog}): $*"
 }
 
+# bad message
 bMsg() {
 	echo -e "$(red ${prog}): $*"
 }
-
 
 # pretty error messages
 err() {
@@ -62,29 +73,15 @@ err() {
 	logDesc="function ${FUNCNAME[$i+1]} at line ${BASH_LINENO[$i]}"
 	errDesc="function $(red ${FUNCNAME[$i+1]}) at line $(red ${BASH_LINENO[$i]})"
 
-	bMsg "${prog}: ${errDesc}: \"$(magenta ${*})\""
+	bMsg "${errDesc}: \"$(magenta ${*})\""
 	logger -p user.error -t "${prog}" "${logDesc}: \"${*}\""
 	
-	return ${oldExit}
-}
-
-# confirm actions
-confirm() {
-	read -r -p "$(blue ${prog}): ${1}: confirm [y/N]" response
-
-	# ${var,,} == str.toLower($var);
-	if [[ ${response,,} =~ ^(y|yes)$ ]]; then
-		confirm="true"
-	else
-		confirm="false"
-	fi
-
-	return ${confirm}
+	exit ${oldExit}
 }
 
 # run command through sudo
 run_sudo() {
-	/usr/bin/sudo ${@}
+	/usr/bin/sudo "${@}"
 	return ${?}
 }
 
@@ -92,7 +89,7 @@ run_sudo() {
 root_shell() {
 	gMsg "dropping to root shell"
 	/usr/bin/sudo "-i"
-	return ${?}
+	exit ${?}
 }
 
 # append to file

@@ -22,54 +22,9 @@
 #  MA 02110-1301, USA.
 
 
-# include functions
+# functions
 include_dir="${BASH_SOURCE%/*}/func"
 . "${include_dir}/_main"
 
-[[ ${#} -gt "0" ]] && run_sudo ${@} && exit
-root_shell
-
 # main()
-#if [ -t ]; then # FIXME
-
-	# stdin/stdout -> interactive terminal
-	# check arg(s) passed
-#	if [[ ${#} -gt "0" ]]; then
-
-		# arg(s) passed, assume sudo behavior
-#		run_sudo "${@}"
-#	else
-
-		# no args, assume su behavior
-#		root_shell
-#	fi
-#else
-
-	# FIXME: -t is true even when piped !!
-	
-	# no interactive terminal, assume piped
-	# wrap around sudo tee.
-	
-	# [[ $1 = -a ]] && append to file(s)
-#	if [[ ${1} -eq "-a" ]]; then
-#		for appendFile in ${@}; do
-			
-			# file must exist to append
-#			if [[ -f ${appendFile} ]]; then
-#				append_file ${appendFile}
-#			else
-#				echo "$(red ${prog}): file must exist to append: $(magenta ${1})"
-#			fi
-#		done
-		
-#	else
-	
-	# [[ $1 != -a ]] && write to file(s) 
-#		for writeFile in ${@}; do
-#			write_file ${writeFile}
-#		done
-#	fi
-
-	
-#	exit 0;
-#fi
+[[ ${#} -gt "0" ]] || root_shell && run_sudo "${@}"
