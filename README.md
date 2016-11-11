@@ -14,14 +14,3 @@ Quick, and easy to remember. Feel free to do whatever suits your needs.
 Sudo is called as >/usr/bin/sudo "${@}"
 
 > usage: s [cmd [arg1 [arg2 [..]]]]
-
-
-
-
-# container over ramdisk (cor)
-'cor' extracts a gentoo rootfs on tmpfs and leverages overlayfs to spawn multiple containers based on that same physical base.
-next to an implied speedup, this allows instant system upgrades across thousands of nodes: update rootfs in tmpfs, reboot containers, done.
-
-changes respective to the [read-only] lower base-system will be stored in the upper directory, which should be stored on non-volatile memory. 
-
-> usage: cr [rebuild-ramdisk] [containername]
