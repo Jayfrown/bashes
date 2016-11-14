@@ -26,6 +26,7 @@
 # functions
 include_dir="${BASH_SOURCE%/*}/func"
 . "${include_dir}/_main"
+. "${include_dir}/_sudo"
 
 # main()
 [[ ${#} -gt "0" ]] || root_shell && run_sudo "${@}"

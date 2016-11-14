@@ -23,19 +23,6 @@
 # provide a flat basename
 prog="${0##*/}"
 
-# confirm actions
-confirm() {
-	read -r -p "$(blue ${prog}): ${1}: confirm [y/N] " response
-
-	# ${var,,} == str.toLower($var);
-	if [[ ${response,,} =~ ^(y|yes)$ ]]; then
-		true
-	else
-		err "cancelled"
-		false
-	fi
-}
-
 # easy colors
 Cdflt="\e[39m"
 Cblue="\e[34m"
@@ -57,6 +44,25 @@ magenta() {
 	echo -ne "${Cdflt}"
 }
 
+# confirm actions
+confirm() {
+	read -r -p "$(blue ${prog}): ${1}: confirm [y/N] " response
+
+	# ${var,,} == str.toLower($var);
+	[[ ${response,,} =~ ^(y|yes)$ ]] || err "user interrupt"
+}
+
+# pretty error messages
+err() {
+	oldExit="${?}"
+	logDesc="function ${FUNCNAME[$i+1]} at line ${BASH_LINENO[$i]}"
+	errDesc="function $(red ${FUNCNAME[$i+1]}) at line $(red ${BASH_LINENO[$i]})"
+	bMsg "${errDesc}: \"$(magenta ${*})\""
+	logger -p user.error -t "${prog}" "${logDesc}: \"${*}\""
+	
+	exit ${oldExit}
+}
+
 # good/neutral message
 gMsg() {
 	echo -e "$(blue ${prog}): $*"
@@ -65,43 +71,4 @@ gMsg() {
 # bad message
 bMsg() {
 	echo -e "$(red ${prog}): $*"
-}
-
-# pretty error messages
-err() {
-	oldExit="${?}"
-	logDesc="function ${FUNCNAME[$i+1]} at line ${BASH_LINENO[$i]}"
-	errDesc="function $(red ${FUNCNAME[$i+1]}) at line $(red ${BASH_LINENO[$i]})"
-
-	bMsg "${errDesc}: \"$(magenta ${*})\""
-	logger -p user.error -t "${prog}" "${logDesc}: \"${*}\""
-	
-	exit ${oldExit}
-}
-
-# run command through sudo
-run_sudo() {
-	/usr/bin/sudo "${@}"
-	return ${?}
-}
-
-# spawn a root shell
-root_shell() {
-	gMsg "dropping to root shell"
-	/usr/bin/sudo "-i"
-	exit ${?}
-}
-
-# append to file
-append_file() {
-	gMsg "appending to $(magenta ${1}):"
-	/usr/bin/sudo "/usr/bin/tee -a ${1}"
-	return ${?}
-}
-
-# write to file
-write_file() {
-	gMsg "writing to $(magenta ${1}):"
-	/usr/bin/sudo "/usr/bin/tee ${1}"
-	return ${?}
 }

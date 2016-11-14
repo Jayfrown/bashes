@@ -1,0 +1,17 @@
+##
+# _sudo
+#
+# helpful functions relating to sudo usage.
+
+# run command through sudo
+run_sudo() {
+	/usr/bin/sudo "${@}"
+	return ${?}
+}
+
+# spawn a root shell
+root_shell() {
+	gMsg "dropping to root shell"
+	/usr/bin/sudo "-i"
+	exit ${?}
+}
