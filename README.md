@@ -1,16 +1,17 @@
 # bashes
-Collection of bash scripts and includable functions for every-day use
-Place files under ~/bin (and make sure to include this in your $PATH)
+bash includables for every-day use.
+
+You can include func/_main to use in your scripts
+or use the wrapper I wrote (`s`)
 
 
+# wrapper (s)
+`s` functions as a sudo wrapper. Will either sudo args or spawn a root shell.
 
-# sudo wrapper (s)
-'s' functions as a sudo wrapper.
-Will either sudo args or spawn a root shell.
+Got fairly sick of mistyping `sudo [su -]`
+`sudo` is called as
+```bash
+/usr/bin/sudo "${@}"
+```
 
-Got fairly sick of mistyping sudo [su -]
-Personally, I just call it 's' and stick it under ~/bin
-Quick, and easy to remember. Feel free to do whatever suits your needs.
-Sudo is called as >/usr/bin/sudo "${@}"
-
-> usage: s [cmd [arg1 [arg2 [..]]]]
+`usage: s [cmd [arg1 [arg2 [..]]]]`
