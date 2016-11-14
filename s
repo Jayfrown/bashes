@@ -1,7 +1,8 @@
 #!/bin/bash
 
-##
-#  s
+#!/bin/bash
+
+##  s
 #  sudo wrapper to speed things up
   
 #  Copyright 2016 Jeroen <Jayfrown @ github.com>
