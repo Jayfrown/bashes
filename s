@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 ##  s
 #  sudo wrapper to speed things up
   
